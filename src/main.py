@@ -5,8 +5,8 @@ from fastapi.responses import StreamingResponse
 from src.schemas import ChatRequest
 
 app = FastAPI()
-
 provider = OllamaProvider()
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
