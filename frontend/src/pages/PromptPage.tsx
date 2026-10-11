@@ -3,11 +3,7 @@ import SelectSmall from "../components/CommonDropDown";
 import { TextField, Button, Typography } from "@mui/material";
 import BenchMarksModal from "../components/BenchMarksModal";
 
-const API_URL =
-  import.meta.env.VITE_API_URL ||
-  (import.meta.env.PROD
-    ? "https://local-ai-assistant-backend.onrender.com"
-    : "http://localhost:8000");
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 export const PromptPage = () => {
   const [models, setModels] = useState<string[]>([]);
