@@ -1,19 +1,39 @@
 from fastapi import FastAPI
-from src.provider import OllamaProvider
+from src.provider import OllamaProvider, GroqProvider
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from src.schemas import ChatRequest
+from dotenv import load_dotenv
+import os
 
 app = FastAPI()
-provider = OllamaProvider()
+
+load_dotenv()
+
+provider_type = os.getenv("LLM_PROVIDER", "ollama")
+if provider_type == "groq" and os.getenv("GROQ_API_KEY"):
+    provider = GroqProvider()
+else:
+    provider = OllamaProvider()
+
+
+raw_origins = os.getenv("ALLOWED_ORIGINS", "*")
+origins = [o.strip() for o in raw_origins.split(",")] if raw_origins != "*" else ["*"]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.get('/health')
+def check_health():
+    return {
+        "status": "healthy",
+        "environment": os.getenv("ENVIRONMENT", "development")
+    }
 
 @app.post("/chat")
 def chat(req: ChatRequest):

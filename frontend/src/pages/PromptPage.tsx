@@ -3,6 +3,8 @@ import SelectSmall from "../components/CommonDropDown";
 import { TextField, Button, Typography } from "@mui/material";
 import BenchMarksModal from "../components/BenchMarksModal";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+
 export const PromptPage = () => {
   const [models, setModels] = useState<string[]>([]);
   const [selectedModel, setSelectedModel] = useState<string>("");
@@ -14,7 +16,7 @@ export const PromptPage = () => {
   const [benchmarks, setBenchmarks] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch("http://localhost:8000/models")
+    fetch(`${API_URL}/models`)
       .then((res) => res.json())
       .then((data) => {
         setModels(data.models || []);
@@ -23,7 +25,7 @@ export const PromptPage = () => {
   }, []);
 
   const handleOpenBenchmarks = async () => {
-    const res = await fetch("http://localhost:8000/benchmarks");
+    const res = await fetch(`${API_URL}/benchmarks`);
     const data = await res.json();
     setBenchmarks(data.benchmarks || []);
     setShowBenchmarks(true);
@@ -37,7 +39,7 @@ export const PromptPage = () => {
     setMessages([...updatedMessages, { role: "assistant", content: "" }]);
     setInput("");
 
-    const response = await fetch("http://localhost:8000/chat", {
+    const response = await fetch(`${API_URL}/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ model: selectedModel, messages: updatedMessages }),
