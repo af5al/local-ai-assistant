@@ -1,3 +1,4 @@
+from fastapi import responses
 import requests
 import json
 import pandas as pd
@@ -31,6 +32,10 @@ class OllamaProvider(BaseProvider):
         "stream": True  # Waits for the full response before returning
       }, stream=True)
 
+      if response.status_code != 200:
+        yield f"Error from Ollama ({response.status_code}): {response.text}"
+        return
+
       for line in response.iter_lines():
         if line:
          chunk = json.loads(line)
@@ -39,11 +44,12 @@ class OllamaProvider(BaseProvider):
 
 class GroqProvider(BaseProvider):
     def __init__(self, api_key: str = None):
-        self.api_key = api_key or os.getenv("GROQ_API_KEY", "")
+        key = api_key or os.getenv("GROQ_API_KEY", "")
+        self.api_key = key.strip("'\"")
         self.base_url = "https://api.groq.com/openai/v1"
 
     def get_models(self):
-        return ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"]
+        return ["openai/gpt-oss-20b", "qwen/qwen3.8-27b", "openai/gpt-oss-120b"]
 
     def chat_stream(self, model, messages: list[dict]):
         headers = {
@@ -61,6 +67,10 @@ class GroqProvider(BaseProvider):
             json=payload,
             stream=True
         )
+
+        if response.status_code != 200:
+            yield f"Error from Groq ({response.status_code}): {response.text}"
+            return
 
         for line in response.iter_lines():
             if line:
