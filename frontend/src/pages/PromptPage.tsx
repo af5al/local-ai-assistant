@@ -1,12 +1,17 @@
 import { useState, useEffect } from "react";
 import SelectSmall from "../components/CommonDropDown";
 import { TextField, Button, Typography } from "@mui/material";
+import BenchMarksModal from "../components/BenchMarksModal";
 
 export const PromptPage = () => {
   const [models, setModels] = useState<string[]>([]);
   const [selectedModel, setSelectedModel] = useState<string>("");
   const [input, setInput] = useState<string>("");
-  const [messages, setMessages] = useState<Array<{ role: string; content: string }>>([]);
+  const [messages, setMessages] = useState<
+    Array<{ role: string; content: string }>
+  >([]);
+  const [showBenchmarks, setShowBenchmarks] = useState(false);
+  const [benchmarks, setBenchmarks] = useState<any[]>([]);
 
   useEffect(() => {
     fetch("http://localhost:8000/models")
@@ -16,6 +21,13 @@ export const PromptPage = () => {
         if (data.models?.length > 0) setSelectedModel(data.models[0]);
       });
   }, []);
+
+  const handleOpenBenchmarks = async () => {
+    const res = await fetch("http://localhost:8000/benchmarks");
+    const data = await res.json();
+    setBenchmarks(data.benchmarks || []);
+    setShowBenchmarks(true);
+  };
 
   const handleSend = async () => {
     if (!input.trim() || !selectedModel) return;
@@ -39,7 +51,10 @@ export const PromptPage = () => {
       const { done, value } = await reader.read();
       if (done) break;
       assistantReply += decoder.decode(value);
-      setMessages([...updatedMessages, { role: "assistant", content: assistantReply }]);
+      setMessages([
+        ...updatedMessages,
+        { role: "assistant", content: assistantReply },
+      ]);
     }
   };
 
@@ -47,7 +62,14 @@ export const PromptPage = () => {
     <div className="chat-container">
       <div className="chat-header">
         <Typography variant="h6">Local AI Assistant</Typography>
-        <SelectSmall options={models} value={selectedModel} onChange={setSelectedModel} />
+        <SelectSmall
+          options={models}
+          value={selectedModel}
+          onChange={setSelectedModel}
+        />
+        <Button variant="outlined" size="small" onClick={handleOpenBenchmarks}>
+          📊 Benchmark Report
+        </Button>
       </div>
 
       <div className="messages-area">
@@ -67,8 +89,15 @@ export const PromptPage = () => {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSend()}
         />
-        <Button variant="contained" onClick={handleSend}>Send</Button>
+        <Button variant="contained" onClick={handleSend}>
+          Send
+        </Button>
       </div>
+      <BenchMarksModal
+        open={showBenchmarks}
+        onClose={() => setShowBenchmarks(false)}
+        data={benchmarks}
+      />
     </div>
   );
 };

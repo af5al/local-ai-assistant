@@ -25,3 +25,7 @@ def chat(req: ChatRequest):
 @app.get('/models')
 def list_models():
     return {"models": provider.get_models()}
+
+@app.get('/benchmarks')
+def get_benchmarks_report():
+    return {"benchmarks": provider.get_benchmark_reports()}

@@ -1,5 +1,7 @@
 import requests
 import json
+import pandas as pd
+import os
 
 class OllamaProvider:
     def __init__(self, base_url: str = "http://localhost:11434"):
@@ -22,6 +24,17 @@ class OllamaProvider:
          chunk = json.loads(line)
          content = chunk.get("message", {}).get("content", "")
          yield content
+
+    def get_benchmark_reports(self):
+      try:
+        csv_path = "benchmarks/results.csv"
+        if os.path.exists(csv_path):
+          df = pd.read_csv(csv_path)
+          return df.to_dict(orient="records")
+        return []
+      except Exception as err: 
+        print(err)
+      
 
    
 
