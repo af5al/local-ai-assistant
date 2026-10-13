@@ -19,10 +19,14 @@ class BaseProvider:
 class OllamaProvider(BaseProvider):
     def __init__(self, base_url: str = None):
      self.base_url = base_url or os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+    
     def get_models(self):
-       response = requests.get(f"{self.base_url}/api/tags", {})
-       data = response.json()
-       return [model["name"] for model in data.get("models", [])]
+        try:
+            response = requests.get(f"{self.base_url}/api/tags", timeout=2)
+            data = response.json()
+            return [model["name"] for model in data.get("models", [])]
+        except Exception:
+            return []
 
     def chat_stream(self, model, messages: list[dict]):
       response = requests.post(f"{self.base_url}/api/chat", json=

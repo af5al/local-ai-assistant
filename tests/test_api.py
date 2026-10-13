@@ -9,12 +9,13 @@ def test_health_check():
     assert response.status_code == 200
     assert response.json()["status"] == "healthy"
 
-def test_list_models():
-    """Verify /models returns a list"""
+def test_list_models(monkeypatch):
+    """Verify /models returns a list (isolated with mocking)"""
+    monkeypatch.setattr("src.main.provider.get_models", lambda: ["mock-model-1", "mock-model-2"])
+    
     response = client.get("/models")
     assert response.status_code == 200
-    assert "models" in response.json()
-    assert isinstance(response.json()["models"], list)
+    assert response.json()["models"] == ["mock-model-1", "mock-model-2"]
 
 def test_chat_validation_error():
     """Verify Pydantic rejects invalid requests with HTTP 422"""
