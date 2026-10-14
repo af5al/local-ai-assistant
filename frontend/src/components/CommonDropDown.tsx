@@ -12,7 +12,7 @@ type InputParams = {
 
 export default function SelectSmall({
   options,
-  label,
+  label = "Select a model",
   value,
   onChange,
 }: InputParams) {
@@ -21,20 +21,18 @@ export default function SelectSmall({
   };
 
   return (
-    <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
-      <InputLabel id="demo-select-small-label">
-        {label || "select model"}
-      </InputLabel>
+    <FormControl sx={{ m: 1, minWidth: 200 }} size="small">
+      <InputLabel id="model-select-label">{label}</InputLabel>
       <Select
-        labelId="demo-select-small-label"
-        id="demo-select-small"
+        labelId="model-select-label"
+        id="model-select"
         value={value}
-        label={label || "model"}
+        label={label}
         onChange={handleChange}
       >
         {options?.map((op: string) => (
           <MenuItem key={op} value={op}>
-            <em>{op}</em>
+            {op}
           </MenuItem>
         ))}
       </Select>
